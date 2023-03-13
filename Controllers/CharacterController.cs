@@ -1,12 +1,14 @@
+using System.Security.Claims;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class CharacterController : ControllerBase
@@ -19,9 +21,11 @@ namespace dotnet_rpg.Controllers
             _characterService = characterService;
         }
 
+        // [AllowAnonymous]
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
         {
+            // int userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value);
             return Ok(await _characterService.GetAllCharacters());
         }
 
@@ -51,6 +55,12 @@ namespace dotnet_rpg.Controllers
             var response = await _characterService.DeleteCharacter(id);
             if (response.Data is null) return NotFound(response);
             return Ok(response);
+        }
+
+        [HttpPost("Skill")]
+        public async Task<ActionResult<GetCharacterDto>> AddCharacterSkill(AddCharacterSkillDto newCharacterSkill)
+        {
+            return Ok(await _characterService.AddCharacterSkill(newCharacterSkill));
         }
     }
 }
